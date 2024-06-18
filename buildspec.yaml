@@ -53,6 +53,11 @@ phases:
       - echo "Running SonarQube analysis..."
       - sonar-scanner -Dsonar.projectKey=soanrqube -Dsonar.sources=. -Dsonar.host.url=http://54.198.126.47:9000/
 
+      # Updated S3 bucket URLs for artifact copying
+      - aws s3 cp trivyfilescan.txt s3://sonar-180-06.s3.amazonaws.com/sonar1/trivyfilescan.txt
+      - aws s3 cp trivyimage.txt s3://sonar-180-06.s3.amazonaws.com/sonar1/trivyimage.txt
+      - aws s3 cp dependency-check/bin/reports/ s3://sonar-180-06.s3.amazonaws.com/sonar1/reports/ --recursive
+
 artifacts:
   files:
     - appspec.yaml
