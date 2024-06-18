@@ -1,12 +1,5 @@
 version: 0.2
 
-env:
-  parameter-store:
-    DOCKER_REGISTRY_USERNAME: username
-    DOCKER_REGISTRY_PASSWORD: password
-    DOCKER_REGISTRY_URL: repositoryurl
-    SONAR_TOKEN: sonar-token
-
 phases:
   install:
     runtime-versions:
