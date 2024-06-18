@@ -5,7 +5,6 @@ phases:
     runtime-versions:
       python: 3.11
       java: corretto17
-
     commands:
       - echo "Installing dependencies..."
       - echo "Performing Trivy file scan before building the image..."
@@ -13,7 +12,7 @@ phases:
       - tar zxvf trivy_0.19.2_Linux-64bit.tar.gz
       - export PATH=$PATH:$PWD
       - trivy filesystem --exit-code 0 --no-progress . >> trivyfilescan.txt
-      - cat trivyfilescan.txt  # Print contents for verification
+      - echo "Trivy file scan complete."
 
       - echo "Downloading and installing OWASP Dependency-Check..."
       - wget https://github.com/jeremylong/DependencyCheck/releases/download/v7.0.2/dependency-check-7.0.2-release.zip
@@ -39,7 +38,7 @@ phases:
     commands:
       - echo "Performing Trivy image scan after building the image..."
       - trivy image "$DOCKER_REGISTRY_URL/$DOCKER_REGISTRY_USERNAME/swiggy:latest" >> trivyimage.txt
-      - cat trivyimage.txt  # Print contents for verification
+      - echo "Trivy image scan complete."
 
       - echo "Running OWASP Dependency-Check scan..."
       - cd dependency-check/bin
@@ -48,15 +47,23 @@ phases:
       - echo "Printing contents of dependency-check/bin/reports/ directory..."
       - ls -l dependency-check/bin/reports/  # List files for verification
       - cat dependency-check/bin/reports/*.html  # Example: Print HTML reports
-      - cat dependency-check/bin/reports/*.json  # Example: Print JSON reports
-
+      
       - echo "Running SonarQube analysis..."
       - sonar-scanner -Dsonar.projectKey=soanrqube -Dsonar.sources=. -Dsonar.host.url=http://54.198.126.47:9000/
+      - echo "SonarQube analysis complete."
 
-      # Updated S3 bucket URLs for artifact copying
+      # Copy artifacts to S3 with echo commands for verification
+      - echo "Copying Trivy file scan results to S3..."
       - aws s3 cp trivyfilescan.txt s3://sonar-180-06.s3.amazonaws.com/sonar1/trivyfilescan.txt
+      - echo "Trivy file scan results copied to S3."
+
+      - echo "Copying Trivy image scan results to S3..."
       - aws s3 cp trivyimage.txt s3://sonar-180-06.s3.amazonaws.com/sonar1/trivyimage.txt
+      - echo "Trivy image scan results copied to S3."
+
+      - echo "Copying Dependency-Check reports to S3..."
       - aws s3 cp dependency-check/bin/reports/ s3://sonar-180-06.s3.amazonaws.com/sonar1/reports/ --recursive
+      - echo "Dependency-Check reports copied to S3."
 
 artifacts:
   files:
