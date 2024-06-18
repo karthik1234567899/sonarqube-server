@@ -13,6 +13,7 @@ phases:
       - tar zxvf trivy_0.19.2_Linux-64bit.tar.gz
       - export PATH=$PATH:$PWD
       - trivy filesystem --exit-code 0 --no-progress . >> trivyfilescan.txt
+      - cat trivyfilescan.txt  # Print contents for verification
 
       - echo "Downloading and installing OWASP Dependency-Check..."
       - wget https://github.com/jeremylong/DependencyCheck/releases/download/v7.0.2/dependency-check-7.0.2-release.zip
@@ -38,14 +39,19 @@ phases:
     commands:
       - echo "Performing Trivy image scan after building the image..."
       - trivy image "$DOCKER_REGISTRY_URL/$DOCKER_REGISTRY_USERNAME/swiggy:latest" >> trivyimage.txt
+      - cat trivyimage.txt  # Print contents for verification
 
       - echo "Running OWASP Dependency-Check scan..."
       - cd dependency-check/bin
       - ./dependency-check.sh --scan . --format ALL
 
+      - echo "Printing contents of dependency-check/bin/reports/ directory..."
+      - ls -l dependency-check/bin/reports/  # List files for verification
+      - cat dependency-check/bin/reports/*.html  # Example: Print HTML reports
+      - cat dependency-check/bin/reports/*.json  # Example: Print JSON reports
+
       - echo "Running SonarQube analysis..."
       - sonar-scanner -Dsonar.projectKey=soanrqube -Dsonar.sources=. -Dsonar.host.url=http://54.198.126.47:9000/
- 
 
 artifacts:
   files:
@@ -53,4 +59,3 @@ artifacts:
     - trivyfilescan.txt
     - trivyimage.txt
     - dependency-check/bin/reports/*
-
